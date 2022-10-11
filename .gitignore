@@ -1,0 +1,5 @@
+.env
+artifacts
+cache
+.prettierrc
+node_modules

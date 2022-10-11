@@ -26,7 +26,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         vrfCoordinatorV2address = VRFCoordinatorV2Mock.address
         const transactionResponse = await VRFCoordinatorV2Mock.createSubscription()
         const transactionReceipt = await transactionResponse.wait(1)
+        //console.log(transactionReceipt.events[0].args)
         subscriptionId = transactionReceipt.events[0].args.subId
+        //await VRFCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+
+        //log("Consumer is added")
         // Now that we have subscription id
         //we need to fund the subsciption
         //Usually, you'd need the LINK token on a real network
@@ -55,6 +59,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         logs: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     })
+
+    /*if (developmentChains.includes(network.name)) {
+        await VRFCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+
+        log("Consumer is added")
+    }*/
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying.....")
         await verify(raffle.address, args)

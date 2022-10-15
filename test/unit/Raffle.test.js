@@ -21,8 +21,6 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
               it("Initialized the raffle correctly", async function () {
                   raffleState = await raffle.getRaffleState()
                   assert.equal(raffleState.toString(), "0")
-                  console.log(chainId)
-                  console.log(interval.toString())
                   assert.equal(interval.toString(), networkConfig[chainId]["Interval"])
               })
           })
@@ -113,7 +111,6 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                   await network.provider.request({ method: "evm_mine", paramms: [] })
                   const txResponse = await raffle.performUpkeep([])
                   const txReceipt = await txResponse.wait(1)
-                  //console.log(txReceipt)
                   const requestId = txReceipt.events[1].args.requestId
                   const raffleState = await raffle.getRaffleState()
                   assert(requestId.toNumber() > 0)
@@ -121,7 +118,15 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
               })
               describe("fulfillRandomWords", function () {
                   beforeEach(async function () {
-                      await raffle.enterRaffle({ value: raffleEntranceFee })
+                      const transactionResponse = await raffle.enterRaffle({
+                          value: raffleEntranceFee,
+                      })
+                      const transactionReceipt = await transactionResponse.wait(1)
+                      console.log(
+                          transactionReceipt.gasUsed
+                              .mul(transactionReceipt.effectiveGasPrice)
+                              .toString()
+                      )
                       await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
                       await network.provider.send("evm_mine", [])
                   })
